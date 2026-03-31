@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>JECCY 企业知识库</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --dark:#0d1b3e;
+  --dark2:#112050;
+  --dark3:#162a6a;
+  --blue:#1a56db;
+  --blue2:#3b82f6;
+  --blue3:#60a5fa;
+  --accent:#38bdf8;
+  --accent2:#0ea5e9;
+  --light:#e0f0ff;
+  --text-muted:#94b8d8;
+  --card-bg:rgba(255,255,255,0.05);
+  --card-border:rgba(96,165,250,0.18);
+  --radius:14px;
+  --radius-sm:8px;
+}
+html{scroll-behavior:smooth;}
+body{
+  font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--dark);color:#fff;min-height:100vh;
+}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--dark2);}
+::-webkit-scrollbar-thumb{background:var(--blue3);border-radius:2px;}
+
+/* ── Top Bar ── */
+.topbar{
+  position:sticky;top:0;z-index:200;
+  background:rgba(13,27,62,0.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(96,165,250,0.15);
+  padding:0 28px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;letter-spacing:3px;color:#fff;text-decoration:none;}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);}
+.topbar-right{display:flex;align-items:center;gap:16px;}
+.switch-btn{padding:7px 18px;border-radius:20px;font-size:12px;border:1px solid rgba(96,165,250,0.3);background:transparent;color:var(--blue3);cursor:pointer;font-family:inherit;transition:all 0.2s;text-decoration:none;display:inline-block;}
+.switch-btn:hover{background:rgba(96,165,250,0.1);}
+.user-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--accent));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;}
+
+/* ── Layout ── */
+.layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 60px);}
+
+/* ── Sidebar ── */
+.sidebar{
+  background:rgba(255,255,255,0.02);
+  border-right:1px solid rgba(96,165,250,0.1);
+  padding:24px 0;
+  position:sticky;top:60px;
+  height:calc(100vh - 60px);overflow-y:auto;
+}
+.sidebar-logo-area{padding:0 20px 20px;border-bottom:1px solid rgba(96,165,250,0.1);margin-bottom:12px;}
+.sidebar-app-title{font-size:13px;font-weight:600;color:var(--accent);letter-spacing:1px;}
+.sidebar-app-sub{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.sidebar-cat{font-size:10px;font-weight:600;color:rgba(148,184,216,0.6);padding:0 20px;margin:16px 0 6px;letter-spacing:1.2px;text-transform:uppercase;}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;color:var(--text-muted);cursor:pointer;transition:all 0.15s;border-left:2px solid transparent;user-select:none;}
+.sidebar-item:hover{background:rgba(96,165,250,0.06);color:var(--light);}
+.sidebar-item.active{background:rgba(56,189,248,0.08);color:var(--accent);border-left-color:var(--accent);font-weight:500;}
+.si-icon{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
+.sidebar-divider{height:1px;background:rgba(96,165,250,0.1);margin:14px 20px;}
+
+/* ── Content ── */
+.content{padding:32px;overflow-y:auto;background:var(--dark);}
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* ── Hero ── */
+.hero{
+  background:linear-gradient(135deg,var(--dark3) 0%,rgba(26,86,219,0.4) 100%);
+  border:1px solid rgba(96,165,250,0.2);border-radius:20px;
+  padding:32px 36px;margin-bottom:28px;position:relative;overflow:hidden;
+}
+.hero::before{content:'';position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.1),transparent 70%);}
+.hero-tag{display:inline-block;padding:4px 12px;border-radius:12px;background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);font-size:11px;color:var(--accent);font-weight:500;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase;}
+.hero h1{font-size:24px;font-weight:700;line-height:1.3;margin-bottom:8px;}
+.hero h1 span{color:var(--accent);}
+.hero p{font-size:13px;color:var(--text-muted);line-height:1.7;max-width:500px;}
+
+/* ── Section Title ── */
+.sec-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.sec-title::after{content:'';flex:1;height:1px;background:rgba(96,165,250,0.12);}
+
+/* ── Announcement ── */
+.ann-list{margin-bottom:24px;}
+.ann-item{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:16px 20px;margin-bottom:10px;
+  cursor:pointer;display:flex;align-items:flex-start;gap:14px;
+  transition:all 0.2s;
+}
+.ann-item:hover{border-color:rgba(56,189,248,0.35);transform:translateX(3px);}
+.ann-indicator{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0;min-height:40px;}
+.ind-new{background:var(--accent);}
+.ind-urgent{background:#f87171;}
+.ind-normal{background:rgba(148,184,216,0.3);}
+.ann-body{flex:1;}
+.ann-title-text{font-size:14px;font-weight:500;color:#fff;margin-bottom:5px;}
+.ann-meta{font-size:12px;color:var(--text-muted);}
+.ann-badge{padding:3px 10px;border-radius:8px;font-size:10px;font-weight:600;flex-shrink:0;align-self:flex-start;letter-spacing:0.5px;}
+.badge-new{background:rgba(56,189,248,0.15);color:var(--accent);border:1px solid rgba(56,189,248,0.3);}
+.badge-urgent{background:rgba(248,113,113,0.12);color:#f87171;border:1px solid rgba(248,113,113,0.25);}
+.badge-normal{background:rgba(255,255,255,0.05);color:var(--text-muted);border:1px solid rgba(255,255,255,0.08);}
+
+/* ── Password Cards ── */
+.pwd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:24px;}
+.pwd-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:20px;
+  transition:all 0.2s;
+}
+.pwd-card:hover{border-color:rgba(56,189,248,0.35);box-shadow:0 4px 24px rgba(56,189,248,0.08);}
+.pwd-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.pwd-icon{
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.2);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.pwd-name{font-size:13px;font-weight:600;color:#fff;}
+.pwd-status{display:flex;align-items:center;gap:5px;margin-top:3px;}
+.status-dot{width:6px;height:6px;border-radius:50%;}
+.dot-green{background:#4ade80;box-shadow:0 0 6px rgba(74,222,128,0.5);}
+.dot-amber{background:#fbbf24;box-shadow:0 0 6px rgba(251,191,36,0.5);}
+.pwd-status-text{font-size:11px;color:var(--text-muted);}
+.pwd-label{font-size:11px;color:var(--text-muted);margin-bottom:5px;}
+.pwd-value{
+  font-size:17px;font-weight:700;
+  font-family:"SF Mono","Fira Code","Courier New",monospace;
+  color:var(--accent);letter-spacing:2px;
+  background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.15);
+  border-radius:8px;padding:8px 12px;margin-bottom:10px;
+  cursor:pointer;transition:background 0.15s;position:relative;
+}
+.pwd-value:hover{background:rgba(56,189,248,0.12);}
+.copy-hint{font-size:10px;color:rgba(56,189,248,0.5);}
+.pwd-note{font-size:11px;color:var(--text-muted);padding-top:10px;border-top:1px solid rgba(96,165,250,0.1);}
+
+/* ── WiFi Cards ── */
+.wifi-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
+.wifi-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:22px;
+  transition:all 0.2s;
+}
+.wifi-card:hover{border-color:rgba(56,189,248,0.35);}
+.wifi-top{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.wifi-icon{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,rgba(26,86,219,0.3),rgba(56,189,248,0.15));
+  border:1px solid rgba(56,189,248,0.2);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.wifi-name{font-size:14px;font-weight:600;color:#fff;}
+.wifi-type{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.wifi-field{margin-bottom:14px;}
+.wifi-field-label{font-size:11px;color:var(--text-muted);margin-bottom:5px;letter-spacing:0.5px;}
+.wifi-field-value{
+  font-size:14px;font-weight:600;
+  font-family:"SF Mono","Fira Code","Courier New",monospace;
+  color:var(--accent);background:rgba(56,189,248,0.06);
+  border:1px solid rgba(56,189,248,0.15);
+  border-radius:8px;padding:8px 12px;
+  cursor:pointer;transition:background 0.15s;letter-spacing:1px;
+}
+.wifi-field-value:hover{background:rgba(56,189,248,0.12);}
+.wifi-note{font-size:11px;color:var(--text-muted);line-height:1.5;padding-top:12px;border-top:1px solid rgba(96,165,250,0.1);}
+
+/* ── Contacts ── */
+.contact-search{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(96,165,250,0.15);
+  border-radius:10px;padding:10px 16px;width:100%;
+  font-size:13px;font-family:inherit;color:#fff;outline:none;
+  margin-bottom:16px;transition:border-color 0.15s;
+}
+.contact-search::placeholder{color:rgba(148,184,216,0.5);}
+.contact-search:focus{border-color:rgba(56,189,248,0.4);}
+.dept-group{margin-bottom:20px;}
+.dept-label{font-size:11px;font-weight:600;color:rgba(148,184,216,0.5);letter-spacing:1px;text-transform:uppercase;padding:0 0 8px;border-bottom:1px solid rgba(96,165,250,0.08);margin-bottom:10px;}
+.contact-item{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;
+  transition:all 0.15s;cursor:pointer;
+}
+.contact-item:hover{border-color:rgba(56,189,248,0.3);background:rgba(56,189,248,0.04);}
+.avatar{
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;flex-shrink:0;
+}
+.av-blue{background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;}
+.av-teal{background:linear-gradient(135deg,#0f766e,#0d9488);color:#fff;}
+.av-coral{background:linear-gradient(135deg,#b45309,#d97706);color:#fff;}
+.av-purple{background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;}
+.av-green{background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;}
+.contact-info{flex:1;}
+.contact-name{font-size:13px;font-weight:500;color:#fff;}
+.contact-dept{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.contact-right{text-align:right;}
+.contact-phone{font-size:12px;color:var(--accent);font-family:"SF Mono","Fira Code",monospace;font-weight:600;}
+.contact-ext{font-size:10px;color:var(--text-muted);margin-top:2px;}
+
+/* ── Memo ── */
+.memo-compose{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:20px;margin-bottom:20px;
+}
+.memo-compose-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.memo-compose-title{font-size:13px;font-weight:600;color:#fff;}
+.memo-today{font-size:11px;color:var(--text-muted);}
+textarea{
+  width:100%;background:rgba(255,255,255,0.04);
+  border:1px solid rgba(96,165,250,0.15);
+  border-radius:var(--radius-sm);padding:12px 14px;
+  font-size:13px;font-family:inherit;color:#fff;
+  resize:vertical;min-height:110px;outline:none;
+  transition:border-color 0.15s;line-height:1.6;
+}
+textarea::placeholder{color:rgba(148,184,216,0.4);}
+textarea:focus{border-color:rgba(56,189,248,0.4);}
+.btn-save{
+  margin-top:12px;padding:9px 24px;
+  background:linear-gradient(135deg,var(--blue),var(--accent2));
+  color:#fff;border:none;border-radius:10px;
+  font-size:13px;font-weight:600;cursor:pointer;
+  font-family:inherit;transition:opacity 0.15s;letter-spacing:0.5px;
+}
+.btn-save:hover{opacity:0.88;}
+.saved-memo{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;
+  transition:border-color 0.15s;
+}
+.saved-memo:hover{border-color:rgba(96,165,250,0.25);}
+.sm-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.sm-date{font-size:11px;color:var(--text-muted);}
+.sm-del{font-size:11px;color:rgba(248,113,113,0.7);cursor:pointer;transition:color 0.15s;}
+.sm-del:hover{color:#f87171;}
+.sm-body{font-size:13px;color:var(--light);white-space:pre-wrap;line-height:1.7;}
+.memo-empty{text-align:center;padding:32px;font-size:13px;color:var(--text-muted);}
+
+/* ── Quick Access (homepage) ── */
+.qa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:28px;}
+.qa-card{
+  background:var(--card-bg);border:1px solid var(--card-border);
+  border-radius:var(--radius);padding:20px;text-align:center;
+  cursor:pointer;transition:all 0.2s;
+}
+.qa-card:hover{transform:translateY(-3px);border-color:rgba(56,189,248,0.35);box-shadow:0 8px 24px rgba(56,189,248,0.1);}
+.qa-icon{font-size:28px;margin-bottom:10px;}
+.qa-title{font-size:13px;font-weight:500;color:#fff;margin-bottom:3px;}
+.qa-sub{font-size:11px;color:var(--text-muted);}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:rgba(56,189,248,0.15);border:1px solid rgba(56,189,248,0.3);
+  border-radius:10px;padding:10px 18px;
+  font-size:13px;color:var(--accent);font-weight:500;
+  transform:translateY(60px);opacity:0;transition:all 0.3s;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ── Privacy Notice ── */
+.privacy-notice{
+  background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.2);
+  border-radius:var(--radius-sm);padding:12px 16px;
+  font-size:12px;color:rgba(251,191,36,0.8);margin-top:16px;
+  display:flex;gap:8px;align-items:center;
+}
+
+/* ── Breadcrumb ── */
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);margin-bottom:20px;}
+.breadcrumb span{color:var(--accent);}
+.bc-sep{color:rgba(148,184,216,0.3);}
+
+@media(max-width:700px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .wifi-grid{grid-template-columns:1fr;}
+  .pwd-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><div class="logo-dot"></div>JECCY</div>
+  <div class="topbar-right">
+    <a href="app1_training.html" class="switch-btn">切换 → 培训学院</a>
+    <div class="user-av">员工</div>
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo-area">
+    <div class="sidebar-app-title">📚 企业知识库</div>
+    <div class="sidebar-app-sub">员工日常服务中心</div>
+  </div>
+
+  <div class="sidebar-cat">信息中心</div>
+  <div class="sidebar-item active" onclick="show('s-home',this)">
+    <span class="si-icon">🏠</span>首页总览
+  </div>
+  <div class="sidebar-item" onclick="show('s-notice',this)">
+    <span class="si-icon">📢</span>最新公告
+  </div>
+
+  <div class="sidebar-cat">门禁 & 网络</div>
+  <div class="sidebar-item" onclick="show('s-access',this)">
+    <span class="si-icon">🔐</span>门禁密码
+  </div>
+  <div class="sidebar-item" onclick="show('s-wifi',this)">
+    <span class="si-icon">📶</span>Wi-Fi 密码
+  </div>
+
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-cat">通讯 & 工具</div>
+  <div class="sidebar-item" onclick="show('s-contacts',this)">
+    <span class="si-icon">📞</span>通讯录
+  </div>
+  <div class="sidebar-item" onclick="show('s-memo',this)">
+    <span class="si-icon">📝</span>我的备忘录
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- ══ 首页总览 ══ -->
+  <div class="screen active" id="s-home">
+    <div class="hero">
+      <div class="hero-tag">员工服务</div>
+      <h1>JECCY <span>企业知识库</span></h1>
+      <p>快速获取公司公告、门禁密码、Wi-Fi 信息及部门联系方式，一站式员工服务平台。</p>
+    </div>
+    <div class="sec-title">快速入口</div>
+    <div class="qa-grid">
+      <div class="qa-card" onclick="show('s-notice', document.querySelector('[data-id=notice]'))">
+        <div class="qa-icon">📢</div>
+        <div class="qa-title">最新公告</div>
+        <div class="qa-sub">4 条未读</div>
+      </div>
+      <div class="qa-card" onclick="show('s-access', document.querySelector('[data-id=access]'))">
+        <div class="qa-icon">🔐</div>
+        <div class="qa-title">门禁密码</div>
+        <div class="qa-sub">本月有效</div>
+      </div>
+      <div class="qa-card" onclick="show('s-wifi', document.querySelector('[data-id=wifi]'))">
+        <div class="qa-icon">📶</div>
+        <div class="qa-title">Wi-Fi 密码</div>
+        <div class="qa-sub">2 个网络</div>
+      </div>
+      <div class="qa-card" onclick="show('s-contacts', document.querySelector('[data-id=contacts]'))">
+        <div class="qa-icon">📞</div>
+        <div class="qa-title">通讯录</div>
+        <div class="qa-sub">7 位负责人</div>
+      </div>
+      <div class="qa-card" onclick="show('s-memo', document.querySelector('[data-id=memo]'))">
+        <div class="qa-icon">📝</div>
+        <div class="qa-title">备忘录</div>
+        <div class="qa-sub">记录待办</div>
+      </div>
+    </div>
+
+    <div class="sec-title">今日公告</div>
+    <div class="ann-item" style="margin-bottom:10px;">
+      <div class="ann-indicator ind-urgent"></div>
+      <div class="ann-body">
+        <div class="ann-title-text">安全生产专项检查通知</div>
+        <div class="ann-meta">2024-01-10 · 安全部 · 请全员知晓</div>
+      </div>
+      <div class="ann-badge badge-urgent">紧急</div>
+    </div>
+    <div class="ann-item">
+      <div class="ann-indicator ind-new"></div>
+      <div class="ann-body">
+        <div class="ann-title-text">2024年春节放假安排通知</div>
+        <div class="ann-meta">2024-01-15 · 行政部</div>
+      </div>
+      <div class="ann-badge badge-new">最新</div>
+    </div>
+  </div>
+
+  <!-- ══ 最新公告 ══ -->
+  <div class="screen" id="s-notice">
+    <div class="breadcrumb">企业知识库 <span class="bc-sep">›</span><span>最新公告</span></div>
+    <div class="hero" style="padding:24px 32px;">
+      <div class="hero-tag">信息中心</div>
+      <h1>最新<span>公告</span></h1>
+      <p>所有重要通知将第一时间在此发布，请定期查看。</p>
+    </div>
+    <div class="sec-title">全部公告</div>
+    <div class="ann-list">
+      <div class="ann-item">
+        <div class="ann-indicator ind-urgent"></div>
+        <div class="ann-body">
+          <div class="ann-title-text">安全生产专项检查通知</div>
+          <div class="ann-meta">2024-01-10 · 安全部 · 本周五下午全员参与</div>
+        </div>
+        <div class="ann-badge badge-urgent">紧急</div>
+      </div>
+      <div class="ann-item">
+        <div class="ann-indicator ind-new"></div>
+        <div class="ann-body">
+          <div class="ann-title-text">2024年春节放假安排通知</div>
+          <div class="ann-meta">2024-01-15 · 行政部 · 2月7日起放假，2月18日复工</div>
+        </div>
+        <div class="ann-badge badge-new">最新</div>
+      </div>
+      <div class="ann-item">
+        <div class="ann-indicator ind-new"></div>
+        <div class="ann-body">
+          <div class="ann-title-text">员工年度体检安排通知</div>
+          <div class="ann-meta">2024-01-05 · 人力资源部 · 请各部门统一报名</div>
+        </div>
+        <div class="ann-badge badge-new">最新</div>
+      </div>
+      <div class="ann-item">
+        <div class="ann-indicator ind-normal"></div>
+        <div class="ann-body">
+          <div class="ann-title-text">2024年绩效考核制度更新说明</div>
+          <div class="ann-meta">2024-01-02 · 人力资源部 · OKR 体系正式启用</div>
+        </div>
+        <div class="ann-badge badge-normal">常规</div>
+      </div>
+      <div class="ann-item">
+        <div class="ann-indicator ind-normal"></div>
+        <div class="ann-body">
+          <div class="ann-title-text">办公区网络升级维护通知</div>
+          <div class="ann-meta">2023-12-28 · IT 部门 · 元旦期间进行，不影响正常办公</div>
+        </div>
+        <div class="ann-badge badge-normal">常规</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 门禁密码 ══ -->
+  <div class="screen" id="s-access">
+    <div class="breadcrumb">企业知识库 <span class="bc-sep">›</span><span>门禁密码</span></div>
+    <div class="hero" style="padding:24px 32px;">
+      <div class="hero-tag">门禁安全</div>
+      <h1>门禁<span>密码</span></h1>
+      <p>点击密码框可复制密码。密码按周期自动更新，请以本页为准。</p>
+    </div>
+    <div class="sec-title">各区域门禁</div>
+    <div class="pwd-grid">
+      <div class="pwd-card">
+        <div class="pwd-header">
+          <div class="pwd-icon">🚪</div>
+          <div>
+            <div class="pwd-name">主楼大门</div>
+            <div class="pwd-status"><span class="status-dot dot-green"></span><span class="pwd-status-text">有效 · 季度更新</span></div>
+          </div>
+        </div>
+        <div class="pwd-label">当前密码（点击复制）</div>
+        <div class="pwd-value" onclick="copyText('2024#JECCY')">2024#JECCY<div class="copy-hint">点击复制</div></div>
+        <div class="pwd-note">下次更新：2024年4月1日</div>
+      </div>
+      <div class="pwd-card">
+        <div class="pwd-header">
+          <div class="pwd-icon">🏢</div>
+          <div>
+            <div class="pwd-name">办公区入口</div>
+            <div class="pwd-status"><span class="status-dot dot-green"></span><span class="pwd-status-text">有效 · 月度更新</span></div>
+          </div>
+        </div>
+        <div class="pwd-label">当前密码（点击复制）</div>
+        <div class="pwd-value" onclick="copyText('8866##')">8866##<div class="copy-hint">点击复制</div></div>
+        <div class="pwd-note">下次更新：2024年2月1日</div>
+      </div>
+      <div class="pwd-card">
+        <div class="pwd-header">
+          <div class="pwd-icon">📦</div>
+          <div>
+            <div class="pwd-name">仓库区域</div>
+            <div class="pwd-status"><span class="status-dot dot-amber"></span><span class="pwd-status-text">仅限授权人员</span></div>
+          </div>
+        </div>
+        <div class="pwd-label">访问方式</div>
+        <div class="pwd-value" style="font-size:13px;letter-spacing:0;font-family:inherit;">申请授权后获取</div>
+        <div class="pwd-note">联系行政部：吴专员 138-0000-0007</div>
+      </div>
+      <div class="pwd-card">
+        <div class="pwd-header">
+          <div class="pwd-icon">🅿️</div>
+          <div>
+            <div class="pwd-name">停车场</div>
+            <div class="pwd-status"><span class="status-dot dot-green"></span><span class="pwd-status-text">车牌识别开放</span></div>
+          </div>
+        </div>
+        <div class="pwd-label">进场方式</div>
+        <div class="pwd-value" style="font-size:13px;letter-spacing:0;font-family:inherit;">车牌自动识别</div>
+        <div class="pwd-note">外访车辆请联系前台登记</div>
+      </div>
+    </div>
+    <div class="privacy-notice">
+      ⚠️ 门禁密码属于公司内部信息，请勿截图或转发给非员工人员，违者将依据员工手册处理。
+    </div>
+  </div>
+
+  <!-- ══ Wi-Fi ══ -->
+  <div class="screen" id="s-wifi">
+    <div class="breadcrumb">企业知识库 <span class="bc-sep">›</span><span>Wi-Fi 密码</span></div>
+    <div class="hero" style="padding:24px 32px;">
+      <div class="hero-tag">网络连接</div>
+      <h1>Wi-Fi <span>接入信息</span></h1>
+      <p>点击密码可复制。访客网络限速，如需高速连接请使用办公室员工网络。</p>
+    </div>
+    <div class="sec-title">可用网络</div>
+    <div class="wifi-grid">
+      <div class="wifi-card">
+        <div class="wifi-top">
+          <div class="wifi-icon">📶</div>
+          <div>
+            <div class="wifi-name">员工办公网络</div>
+            <div class="wifi-type">5GHz · 无限速 · 可访问内网</div>
+          </div>
+        </div>
+        <div class="wifi-field">
+          <div class="wifi-field-label">网络名称（SSID）</div>
+          <div class="wifi-field-value" onclick="copyText('JECCY-Office')">JECCY-Office</div>
+        </div>
+        <div class="wifi-field">
+          <div class="wifi-field-label">密码（点击复制）</div>
+          <div class="wifi-field-value" onclick="copyText('jeccy@2024')">jeccy@2024</div>
+        </div>
+        <div class="wifi-note">推荐员工日常使用，可访问内网共享资源及 ERP/OA 系统。</div>
+      </div>
+      <div class="wifi-card">
+        <div class="wifi-top">
+          <div class="wifi-icon">🌐</div>
+          <div>
+            <div class="wifi-name">访客网络</div>
+            <div class="wifi-type">2.4GHz · 限速 10Mbps · 仅外网</div>
+          </div>
+        </div>
+        <div class="wifi-field">
+          <div class="wifi-field-label">网络名称（SSID）</div>
+          <div class="wifi-field-value" onclick="copyText('JECCY-Guest')">JECCY-Guest</div>
+        </div>
+        <div class="wifi-field">
+          <div class="wifi-field-label">密码（点击复制）</div>
+          <div class="wifi-field-value" onclick="copyText('Welcome2024')">Welcome2024</div>
+        </div>
+        <div class="wifi-note">仅用于接待访客，不可访问公司内网资源，每季度更换密码。</div>
+      </div>
+    </div>
+    <div class="privacy-notice">
+      ⚠️ 员工网络密码请勿分享给外部人员，如有需要请为访客连接访客网络。
+    </div>
+  </div>
+
+  <!-- ══ 通讯录 ══ -->
+  <div class="screen" id="s-contacts">
+    <div class="breadcrumb">企业知识库 <span class="bc-sep">›</span><span>通讯录</span></div>
+    <div class="hero" style="padding:24px 32px;">
+      <div class="hero-tag">各部门负责人</div>
+      <h1>部门<span>通讯录</span></h1>
+      <p>点击联系人可查看详细信息。紧急事务请直接拨打手机，日常事务优先使用内线。</p>
+    </div>
+    <input class="contact-search" placeholder="🔍  搜索姓名或部门…" oninput="filterContacts(this.value)" />
+
+    <div id="contact-list">
+      <div class="dept-group">
+        <div class="dept-label">总经办</div>
+        <div class="contact-item">
+          <div class="avatar av-blue">张</div>
+          <div class="contact-info"><div class="contact-name">张总经理</div><div class="contact-dept">总经办 · 总负责</div></div>
+          <div class="contact-right"><div class="contact-phone">138-0000-0001</div><div class="contact-ext">内线 8001</div></div>
+        </div>
+      </div>
+      <div class="dept-group">
+        <div class="dept-label">销售部</div>
+        <div class="contact-item">
+          <div class="avatar av-teal">李</div>
+          <div class="contact-info"><div class="contact-name">李经理</div><div class="contact-dept">销售部 · 部门负责人</div></div>
+          <div class="contact-right"><div class="contact-phone">138-0000-0002</div><div class="contact-ext">内线 8101</div></div>
+        </div>
+      </div>
+      <div class="dept-group">
+        <div class="dept-label">生产部</div>
+        <div class="contact-item">
+          <div class="avatar av-coral">王</div>
+          <div class="contact-info"><div class="contact-name">王主任</div><div class="contact-dept">生产部 · 部门负责人</div></div>
+          <div class="contact-right"><div class="contact-phone">138-0000-0003</div><div class="contact-ext">内线 8201</div></div>
+        </div>
+      </div>
+      <div class="dept-group">
+        <div class="dept-label">研发部</div>
+        <div class="contact-item">
+          <div class="avatar av-purple">陈</div>
+          <div class="contact-info"><div class="contact-name">陈总监</div><div class="contact-dept">研发部 · 部门负责人</div></div>
+          <div class="contact-right"><div class="contact-phone">138-0000-0004</div><div class="contact-ext">内线 8301</div></div>
+        </div>
+      </div>
+      <div class="dept-group">
+        <div class="dept-label">财务部</div>
+        <div class="contact-item">
+          <div class="avatar av-blue">刘</div>
+          <div class="contact-info"><div class="contact-name">刘经理</div><div class="contact-dept">财务部 · 部门负责人</div></div>
+          <div class="contact-right"><div class="contact-phone">138-0000-0005</div><div class="contact-ext">内线 8401</div></div>
+        </div>
+      </div>
+      <div class="dept-group">
+        <div class="dept-label">人力资源部</div>
+        <div class="contact-item">
+          <div class="avatar av-teal">赵</div>
+          <div class="contact-info"><div class="contact-name">赵主管</div><div class="contact-dept">人力资源部 · 负责人</div></div>
+          <div class="contact-right"><div class="contact-phone">138-0000-0006</div><div class="contact-ext">内线 8501</div></div>
+        </div>
+      </div>
+      <div class="dept-group">
+        <div class="dept-label">行政部</div>
+        <div class="contact-item">
+          <div class="avatar av-green">吴</div>
+          <div class="contact-info"><div class="contact-name">吴专员</div><div class="contact-dept">行政部 · 行政主管</div></div>
+          <div class="contact-right"><div class="contact-phone">138-0000-0007</div><div class="contact-ext">内线 8601</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 备忘录 ══ -->
+  <div class="screen" id="s-memo">
+    <div class="breadcrumb">企业知识库 <span class="bc-sep">›</span><span>我的备忘录</span></div>
+    <div class="hero" style="padding:24px 32px;">
+      <div class="hero-tag">个人工具</div>
+      <h1>我的<span>备忘录</span></h1>
+      <p>记录工作待办、重要提醒和日常笔记。数据保存在本设备，刷新不丢失。</p>
+    </div>
+    <div class="memo-compose">
+      <div class="memo-compose-top">
+        <div class="memo-compose-title">新建备忘</div>
+        <div class="memo-today" id="memo-today-label"></div>
+      </div>
+      <textarea id="memo-input" placeholder="记录待办事项、重要提醒、工作笔记…&#10;按下保存后将显示在下方列表中"></textarea>
+      <button class="btn-save" onclick="saveMemo()">保存备忘 ↵</button>
+    </div>
+    <div class="sec-title">已保存的备忘</div>
+    <div id="memo-list"></div>
+  </div>
+
+</div><!-- /content -->
+</div><!-- /layout -->
+
+<!-- Toast -->
+<div class="toast" id="toast">已复制到剪贴板 ✓</div>
+
+<script>
+/* ── Navigation ── */
+function show(id, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.querySelector('.content').scrollTop = 0;
+}
+
+/* Sidebar items need data-id to be linked from quick access cards */
+document.querySelectorAll('.sidebar-item').forEach((el, i) => {
+  const ids = ['s-home','s-notice','s-access','s-wifi','s-contacts','s-memo'];
+  const dataIds = ['home','notice','access','wifi','contacts','memo'];
+  el.setAttribute('data-id', dataIds[i] || '');
+});
+
+/* ── Copy ── */
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => showToast()).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = text; document.body.appendChild(el);
+    el.select(); document.execCommand('copy');
+    document.body.removeChild(el); showToast();
+  });
+}
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ── Contacts Search ── */
+function filterContacts(query) {
+  const q = query.trim().toLowerCase();
+  document.querySelectorAll('.dept-group').forEach(g => {
+    const items = g.querySelectorAll('.contact-item');
+    let visible = 0;
+    items.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      const show = !q || text.includes(q);
+      item.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    g.style.display = visible ? '' : 'none';
+  });
+}
+
+/* ── Memo ── */
+let memos = JSON.parse(localStorage.getItem('jeccy_memos_v2') || '[]');
+
+function saveMemo() {
+  const input = document.getElementById('memo-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const now = new Date();
+  memos.unshift({
+    id: Date.now(),
+    text,
+    date: now.toLocaleDateString('zh-CN') + ' ' + now.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'})
+  });
+  persist(); input.value = ''; renderMemos();
+}
+function deleteMemo(id) {
+  memos = memos.filter(m => m.id !== id);
+  persist(); renderMemos();
+}
+function persist() { localStorage.setItem('jeccy_memos_v2', JSON.stringify(memos)); }
+function renderMemos() {
+  const container = document.getElementById('memo-list');
+  if (!memos.length) {
+    container.innerHTML = '<div class="memo-empty">暂无备忘记录，在上方输入框添加吧～</div>';
+    return;
+  }
+  container.innerHTML = memos.map(m => `
+    <div class="saved-memo">
+      <div class="sm-header">
+        <span class="sm-date">${m.date}</span>
+        <span class="sm-del" onclick="deleteMemo(${m.id})">删除</span>
+      </div>
+      <div class="sm-body">${m.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+    </div>`).join('');
+}
+
+/* ── Init ── */
+const todayEl = document.getElementById('memo-today-label');
+if (todayEl) todayEl.textContent = new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric'});
+renderMemos();
+</script>
+</body>
+</html>
